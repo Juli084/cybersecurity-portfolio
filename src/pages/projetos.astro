@@ -1,0 +1,66 @@
+---
+import { render } from 'astro:content';
+import Base from '../layouts/Base.astro';
+import Evidence from '../components/Evidence.astro';
+import { formatMonth, getProjects } from '../lib/site';
+
+const projects = await getProjects();
+const rendered = await Promise.all(projects.map(async (p) => ({ p, Content: (await render(p)).Content })));
+---
+
+<Base
+  title="Projetos"
+  description="Projetos Integradores do curso Técnico em Segurança Cibernética: projeto de infraestrutura de rede e ação de conscientização contra golpes digitais, com a minha parte em cada um."
+>
+  <div class="page-head">
+    <div class="wrap">
+      <p class="eyebrow">Trabalhos em equipe</p>
+      <h1>Projetos</h1>
+      <p class="lead">
+        Dois Projetos Integradores do curso. Foram feitos em grupo, então cada um indica qual foi a minha parte e o
+        que foi feito pelos colegas.
+      </p>
+    </div>
+  </div>
+
+  <div class="wrap section section--tight stack">
+    {
+      rendered.map(({ p, Content }) => (
+        <article class="card" aria-labelledby={`p-${p.data.slug}`}>
+          <p class="eyebrow">{p.data.id} · {formatMonth(p.data.date)} · {p.data.team}</p>
+          <h2 id={`p-${p.data.slug}`}>{p.data.title}</h2>
+          <p class="lead">{p.data.summary}</p>
+          <dl class="dl" style="margin-block:1rem">
+            <dt>Minha parte</dt>
+            <dd>{p.data.myPart}</dd>
+            <dt>Natureza</dt>
+            <dd>{p.data.kind}</dd>
+            <dt>Entregas</dt>
+            <dd>
+              <ul>
+                {p.data.deliverables.map((d) => <li>{d}</li>)}
+              </ul>
+            </dd>
+          </dl>
+          <div class="prose">
+            <Content />
+          </div>
+          {p.data.evidence.length > 0 && (
+            <div style="margin-top:1.25rem">
+              <h3>Evidências</h3>
+              <Evidence items={p.data.evidence} />
+            </div>
+          )}
+          {p.data.limitations.length > 0 && (
+            <div style="margin-top:1.25rem">
+              <h3>Limitações</h3>
+              <ul class="prose">
+                {p.data.limitations.map((l) => <li>{l}</li>)}
+              </ul>
+            </div>
+          )}
+        </article>
+      ))
+    }
+  </div>
+</Base>

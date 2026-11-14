@@ -1,0 +1,102 @@
+---
+import { Image } from 'astro:assets';
+import Base from '../layouts/Base.astro';
+import netacad from '../assets/netacad-modulos.png';
+import { certifications, courses, education, qualifications } from '../data/profile';
+import { SKILL_DOMAINS } from '../data/taxonomy';
+import { url } from '../lib/site';
+---
+
+<Base
+  title="Formação e certificações"
+  description="Técnico em Segurança Cibernética pelo Senac Sorocaba, certificações Cisco Networking Academy em cibersegurança, redes e gerenciamento de ameaças, e cursos complementares."
+>
+  <div class="page-head">
+    <div class="wrap">
+      <p class="eyebrow">Base formal</p>
+      <h1>Formação e certificações</h1>
+      <p class="lead">Formação, certificações e cursos, separados. O que foi praticado em cada área está nos laboratórios.</p>
+    </div>
+  </div>
+
+  <div class="wrap section section--tight stack">
+    <section aria-labelledby="h-formacao">
+      <h2 id="h-formacao">Formação</h2>
+      {
+        education.map((e) => (
+          <div class="card card--flat">
+            <h3>{e.title}</h3>
+            <dl class="dl">
+              <dt>Instituição</dt>
+              <dd>{e.institution}</dd>
+              <dt>Situação</dt>
+              <dd>{e.status}</dd>
+              <dt>Áreas praticadas</dt>
+              <dd>
+                <ul class="tag-list">
+                  {e.relatedDomains.map((d) => (
+                    <li>
+                      <a class="tag" href={`${url('competencias/')}#dominio-${d}`}>{SKILL_DOMAINS[d]}</a>
+                    </li>
+                  ))}
+                </ul>
+              </dd>
+            </dl>
+            <p class="muted" style="margin:0.75rem 0 0; font-size:0.93rem">{e.note}</p>
+          </div>
+        ))
+      }
+      <h3 style="margin-top:1.5rem">Qualificações obtidas ao longo do curso</h3>
+      <ul>
+        {qualifications.map((q) => <li>{q}, Senac</li>)}
+      </ul>
+    </section>
+
+    <section aria-labelledby="h-cert">
+      <h2 id="h-cert">Certificações</h2>
+      <div class="grid grid--3">
+        {
+          certifications.map((c) => (
+            <div class="card card--flat">
+              <h3>{c.title}</h3>
+              <p class="muted" style="font-size:0.92rem">{c.issuer}</p>
+              <p style="margin:0; font-size:0.95rem">{c.related}</p>
+            </div>
+          ))
+        }
+      </div>
+    </section>
+
+    <section aria-labelledby="h-cursos">
+      <h2 id="h-cursos">Cursos</h2>
+      <div class="grid grid--2">
+        {
+          courses.map((c) => (
+            <div class="card card--flat">
+              <h3>{c.title}</h3>
+              <dl class="dl">
+                <dt>Instituição</dt>
+                <dd>{c.issuer}</dd>
+                <dt>Período</dt>
+                <dd>{c.date}</dd>
+                <dt>Situação</dt>
+                <dd>{c.status}</dd>
+              </dl>
+            </div>
+          ))
+        }
+        <figure class="figure">
+          <div class="figure__img">
+            <Image
+              src={netacad}
+              alt="Painel do curso no Cisco Networking Academy com os cinco módulos em 100 por cento"
+              width={596}
+              loading="lazy"
+            />
+          </div>
+          <figcaption>Painel do curso com os cinco módulos concluídos.</figcaption>
+        </figure>
+      </div>
+    </section>
+  </div>
+</Base>

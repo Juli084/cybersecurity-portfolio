@@ -1,0 +1,165 @@
+---
+import Base from '../../layouts/Base.astro';
+import LabCard from '../../components/LabCard.astro';
+import { CATEGORIES, EVIDENCE_STRENGTH, OS, SKILLS } from '../../data/taxonomy';
+import { INVENTORIED_LABS, getLabs, getStats, url } from '../../lib/site';
+
+const labs = await getLabs();
+const stats = getStats(labs);
+const uniq = <T,>(items: T[]) => [...new Set(items)];
+const byLabel = (a: [string, string], b: [string, string]) => a[1].localeCompare(b[1], 'pt-BR');
+
+const categories = uniq(labs.map((l) => l.data.category))
+  .map((c) => [c, CATEGORIES[c]] as [string, string])
+  .sort(byLabel);
+const skills = uniq(labs.flatMap((l) => l.data.skills))
+  .map((s) => [s, SKILLS[s].label] as [string, string])
+  .sort(byLabel);
+const systems = uniq(labs.flatMap((l) => l.data.os))
+  .filter((o) => o !== 'nenhum')
+  .map((o) => [o, OS[o]] as [string, string])
+  .sort(byLabel);
+const strengths = uniq(labs.map((l) => l.data.evidenceStrength)).sort();
+const description = `Catálogo com ${stats.labCount} laboratórios de Segurança Cibernética documentados, com busca e filtros por categoria, ferramenta, protocolo, competência, sistema e força da evidência.`;
+---
+
+<Base title="Laboratórios" description={description}>
+  <div class="page-head">
+    <div class="wrap">
+      <p class="eyebrow">Catálogo</p>
+      <h1>Laboratórios</h1>
+      <p class="lead">
+        {stats.labCount} laboratórios em {stats.pageCount} páginas. Atividades pequenas sobre o mesmo assunto foram
+        reunidas em séries. Cada página diz o que fiz, mostra a evidência e lista o que ficou faltando.
+      </p>
+    </div>
+  </div>
+
+  <div class="wrap section section--tight">
+    <form class="filters card card--flat" id="filtros" role="search" aria-label="Filtrar laboratórios">
+      <div class="field field--search">
+        <label for="f-busca">Buscar</label>
+        <input id="f-busca" name="q" type="search" placeholder="Ex.: ACL, Wireshark, DNS, logs" autocomplete="off" />
+      </div>
+      <div class="field">
+        <label for="f-categoria">Categoria</label>
+        <select id="f-categoria" name="category">
+          <option value="">Todas</option>
+          {categories.map(([id, label]) => <option value={id}>{label}</option>)}
+        </select>
+      </div>
+      <div class="field">
+        <label for="f-ferramenta">Ferramenta</label>
+        <select id="f-ferramenta" name="tools">
+          <option value="">Todas</option>
+          {stats.tools.map((t) => <option value={t}>{t}</option>)}
+        </select>
+      </div>
+      <div class="field">
+        <label for="f-protocolo">Protocolo ou tecnologia</label>
+        <select id="f-protocolo" name="protocols">
+          <option value="">Todos</option>
+          {stats.protocols.map((t) => <option value={t}>{t}</option>)}
+        </select>
+      </div>
+      <div class="field">
+        <label for="f-competencia">Competência</label>
+        <select id="f-competencia" name="skills">
+          <option value="">Todas</option>
+          {skills.map(([id, label]) => <option value={id}>{label}</option>)}
+        </select>
+      </div>
+      <div class="field">
+        <label for="f-sistema">Sistema</label>
+        <select id="f-sistema" name="os">
+          <option value="">Todos</option>
+          {systems.map(([id, label]) => <option value={id}>{label}</option>)}
+        </select>
+      </div>
+      <div class="field">
+        <label for="f-evidencia">Força da evidência</label>
+        <select id="f-evidencia" name="strength">
+          <option value="">Todas</option>
+          {strengths.map((s) => <option value={s}>{EVIDENCE_STRENGTH[s].label}</option>)}
+        </select>
+      </div>
+    </form>
+
+    <div class="filters__status">
+      <p id="contagem" role="status" aria-live="polite" style="margin:0">
+        Mostrando {labs.length} de {labs.length} páginas.
+      </p>
+      <button class="link-btn" type="button" id="limpar" hidden>Limpar filtros</button>
+    </div>
+
+    <div class="grid grid--3" id="lista">
+      {labs.map((lab) => <LabCard lab={lab} filterable />)}
+    </div>
+
+    <p class="note" id="vazio" hidden>
+      Nenhum laboratório corresponde a esses filtros. Tente remover um deles.
+    </p>
+
+    <p class="muted" style="margin-top:2rem; font-size:0.93rem">
+      O curso teve {INVENTORIED_LABS} atividades práticas e {INVENTORIED_LABS - stats.labCount} delas não estão aqui: algumas ficaram
+      incompletas e outras aguardam conferência da entrega.
+      O critério está em <a href={url('metodologia/')}>como documento os laboratórios</a>.
+    </p>
+  </div>
+
+  <script>
+    const form = document.getElementById('filtros') as HTMLFormElement | null;
+    const cards = Array.from(document.querySelectorAll<HTMLElement>('[data-lab]'));
+    const count = document.getElementById('contagem');
+    const empty = document.getElementById('vazio');
+    const clear = document.getElementById('limpar');
+    const listFields = ['tools', 'protocols', 'skills', 'os'] as const;
+
+    function apply() {
+      if (!form) return;
+      const data = new FormData(form);
+      const q = String(data.get('q') ?? '').trim().toLowerCase();
+      const terms = q.split(/\s+/).filter(Boolean);
+      const category = String(data.get('category') ?? '');
+      const strength = String(data.get('strength') ?? '');
+      let shown = 0;
+      let active = terms.length > 0 || category !== '' || strength !== '';
+
+      for (const card of cards) {
+        let ok = terms.every((t) => (card.dataset.search ?? '').includes(t));
+        if (ok && category) ok = card.dataset.category === category;
+        if (ok && strength) ok = card.dataset.strength === strength;
+        for (const field of listFields) {
+          const wanted = String(data.get(field) ?? '');
+          if (!wanted) continue;
+          active = true;
+          if (ok) ok = (card.dataset[field] ?? '').split('|').includes(wanted);
+        }
+        card.hidden = !ok;
+        if (ok) shown += 1;
+      }
+
+      if (count) count.textContent = `Mostrando ${shown} de ${cards.length} páginas.`;
+      if (empty) empty.hidden = shown !== 0;
+      if (clear) clear.hidden = !active;
+    }
+
+    form?.addEventListener('input', apply);
+    form?.addEventListener('submit', (event) => event.preventDefault());
+    clear?.addEventListener('click', () => {
+      form?.reset();
+      apply();
+      document.getElementById('f-busca')?.focus();
+    });
+
+    // Permite abrir o catálogo já filtrado: /laboratorios/?skills=acl-cisco
+    const params = new URLSearchParams(location.search);
+    if (form && [...params.keys()].length > 0) {
+      for (const [key, value] of params) {
+        const field = form.elements.namedItem(key);
+        if (field instanceof HTMLInputElement || field instanceof HTMLSelectElement) field.value = value;
+      }
+      apply();
+    }
+  </script>
+</Base>

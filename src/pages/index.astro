@@ -1,0 +1,195 @@
+---
+import Base from '../layouts/Base.astro';
+import LabCard from '../components/LabCard.astro';
+import { certifications, education, profile } from '../data/profile';
+import { EVIDENCE_STRENGTH } from '../data/taxonomy';
+import { formatMonth, getLabs, getSkillMatrix, getStats, url } from '../lib/site';
+
+const labs = await getLabs();
+const stats = getStats(labs);
+const matrix = getSkillMatrix(labs);
+const featured = labs
+  .filter((l) => l.data.featured !== undefined)
+  .sort((a, b) => (a.data.featured ?? 0) - (b.data.featured ?? 0));
+const description = `${profile.intro} ${stats.labCount} laboratórios documentados com evidências em redes, monitoramento, criptografia e investigação.`;
+const person = {
+  '@context': 'https://schema.org',
+  '@type': 'Person',
+  name: profile.name,
+  jobTitle: 'Técnico em Segurança Cibernética',
+  address: { '@type': 'PostalAddress', addressLocality: 'Sorocaba', addressRegion: 'SP', addressCountry: 'BR' },
+  sameAs: [profile.linkedin, profile.github],
+};
+---
+
+<Base description={description} ogType="profile">
+  <script is:inline type="application/ld+json" set:html={JSON.stringify(person)} slot="head" />
+
+  <section class="hero" aria-labelledby="h-hero">
+    <div class="wrap hero__grid">
+      <div>
+        <p class="eyebrow" style="color:var(--on-dark-muted)">Portfólio de Segurança Cibernética · {profile.location}</p>
+        <h1 id="h-hero">{profile.name}</h1>
+        <p class="hero__headline">{profile.headline}</p>
+        <p class="hero__intro">
+          {profile.intro} Aqui cada competência aponta para um laboratório, e cada laboratório mostra o que fiz, o
+          que observei e o que ficou faltando.
+        </p>
+        <p class="hero__intro"><strong style="color:var(--on-dark)">{profile.objective}</strong></p>
+        <div class="btn-row section--dark" style="background:none">
+          <a class="btn btn--primary" href={url('laboratorios/')}>Ver laboratórios</a>
+          <a class="btn btn--ghost" href={profile.github} rel="noopener">GitHub</a>
+          <a class="btn btn--ghost" href={profile.linkedin} rel="noopener">LinkedIn</a>
+          <a class="btn btn--ghost" href={url(profile.cvFile)}>Baixar currículo</a>
+        </div>
+      </div>
+      <aside class="hero__panel" aria-labelledby="h-numeros">
+        <h2 id="h-numeros">O portfólio em números</h2>
+        <dl class="hero__stats">
+          <div>
+            <dt>laboratórios documentados</dt>
+            <dd>{stats.labCount}</dd>
+          </div>
+          <div>
+            <dt>com evidência direta</dt>
+            <dd>{stats.labsWithCapture}</dd>
+          </div>
+          <div>
+            <dt>ferramentas e comandos</dt>
+            <dd>{stats.tools.length}</dd>
+          </div>
+          <div>
+            <dt>protocolos e tecnologias</dt>
+            <dd>{stats.protocols.length}</dd>
+          </div>
+          <div>
+            <dt>capturas publicadas</dt>
+            <dd>{stats.captures}</dd>
+          </div>
+          <div>
+            <dt>categorias</dt>
+            <dd>{stats.categoryCount}</dd>
+          </div>
+        </dl>
+        <p style="font-size:0.82rem; color:var(--on-dark-muted); margin:1rem 0 0">
+          Números calculados a partir dos laboratórios publicados, de {formatMonth(stats.firstDate)} a {formatMonth(stats.lastDate)}.
+        </p>
+      </aside>
+    </div>
+  </section>
+
+  <section class="section section--surface" aria-labelledby="h-resumo">
+    <div class="wrap">
+      <h2 id="h-resumo" class="sr-only">Resumo</h2>
+      <div class="grid grid--3">
+        <div>
+          <p class="eyebrow">Quem sou</p>
+          <p>
+            Trabalho com tecnologia desde 2013: manutenção, suporte, desenvolvimento web e operação de e-commerce.
+            Concluí o Técnico em Segurança Cibernética no Senac Sorocaba e tenho três certificações Cisco.
+          </p>
+          <p><a href={url('sobre/')}>Trajetória e experiência →</a></p>
+        </div>
+        <div>
+          <p class="eyebrow">O que pratiquei</p>
+          <p>
+            Controle de acesso em roteadores Cisco (ACL, TACACS+, RADIUS), leitura de tráfego e de logs, alertas de
+            IDS, varredura com Nmap, hash e criptografia com OpenSSL, Linux e Windows em linha de comando.
+          </p>
+          <p><a href={url('competencias/')}>Matriz de competências →</a></p>
+        </div>
+        <div>
+          <p class="eyebrow">Onde está a prova</p>
+          <p>
+            Em cada página de laboratório: capturas minhas, saídas de terminal, análise e uma seção de limitações.
+            Tudo foi feito em ambiente de curso, controlado e autorizado.
+          </p>
+          <p><a href={url('metodologia/')}>Como classifico a evidência →</a></p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" aria-labelledby="h-destaques">
+    <div class="wrap">
+      <p class="eyebrow">Por onde começar</p>
+      <h2 id="h-destaques">Laboratórios em destaque</h2>
+      <p class="lead">
+        Escolhidos por variedade técnica e por terem evidência completa, não por aparência.
+      </p>
+      <div class="grid grid--3" style="margin-top:1.5rem">
+        {featured.map((lab) => <LabCard lab={lab} />)}
+      </div>
+      <p style="margin-top:1.5rem">
+        <a class="btn btn--ghost" href={url('laboratorios/')}>Ver todos os {stats.pageCount} registros do catálogo</a>
+      </p>
+    </div>
+  </section>
+
+  <section class="section section--surface" aria-labelledby="h-comp">
+    <div class="wrap">
+      <p class="eyebrow">Competências técnicas</p>
+      <h2 id="h-comp">O que cada domínio tem de evidência</h2>
+      <div class="grid grid--4" style="margin-top:1.25rem">
+        {
+          matrix.domains.map((domain) => (
+            <div class="card card--flat">
+              <h3>{domain.label}</h3>
+              <ul style="font-size:0.93rem">
+                {domain.rows.slice(0, 5).map((row) => (
+                  <li>
+                    <a href={`${url('competencias/')}#${row.id}`}>{row.label}</a>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ))
+        }
+      </div>
+    </div>
+  </section>
+
+  <section class="section" aria-labelledby="h-formacao">
+    <div class="wrap grid grid--2">
+      <div>
+        <p class="eyebrow">Formação e certificações</p>
+        <h2 id="h-formacao">Base formal</h2>
+        <ul>
+          {education.map((e) => <li><strong>{e.title}</strong>, {e.institution}. {e.status}.</li>)}
+          {certifications.map((c) => <li><strong>{c.title}</strong>, {c.issuer}.</li>)}
+        </ul>
+        <p><a href={url('formacao/')}>Ver formação completa →</a></p>
+      </div>
+      <div>
+        <p class="eyebrow">Leitura da evidência</p>
+        <h2>O que significam os selos</h2>
+        <ul style="list-style:none; padding:0">
+          {
+            (['E3', 'E2'] as const).map((s) => (
+              <li style="margin-bottom:0.7rem">
+                <span class={`badge badge--${s}`}>{EVIDENCE_STRENGTH[s].short}</span>
+                <span style="display:block; font-size:0.94rem; margin-top:0.2rem">{EVIDENCE_STRENGTH[s].description}</span>
+              </li>
+            ))
+          }
+        </ul>
+        <p class="muted" style="font-size:0.92rem">
+          Atividades incompletas ou com autoria ainda não conferida ficaram fora do site.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <section class="section section--dark" aria-labelledby="h-contato">
+    <div class="wrap">
+      <h2 id="h-contato">Vamos conversar</h2>
+      <p class="lead">{profile.objective} Estou em {profile.location}.</p>
+      <div class="btn-row">
+        <a class="btn btn--primary" href={`mailto:${profile.email}`}>{profile.email}</a>
+        <a class="btn btn--ghost" href={profile.linkedin} rel="noopener">LinkedIn</a>
+        <a class="btn btn--ghost" href={profile.github} rel="noopener">Projetos no GitHub</a>
+        <a class="btn btn--ghost" href={url(profile.cvFile)}>Baixar currículo</a>
+      </div>
+    </div>
+  </section>
+</Base>

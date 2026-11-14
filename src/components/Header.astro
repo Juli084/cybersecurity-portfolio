@@ -1,0 +1,37 @@
+---
+import { profile } from '../data/profile';
+import { url } from '../lib/site';
+
+const items = [
+  { href: 'laboratorios/', label: 'Laboratórios' },
+  { href: 'competencias/', label: 'Competências' },
+  { href: 'projetos/', label: 'Projetos' },
+  { href: 'formacao/', label: 'Formação' },
+  { href: 'sobre/', label: 'Sobre' },
+  { href: 'contato/', label: 'Contato' },
+];
+const here = Astro.url.pathname;
+const isCurrent = (href: string) => here.startsWith(url(href));
+---
+
+<header class="site-header">
+  <div class="wrap site-header__inner">
+    <a class="brand" href={url('')} aria-label={`${profile.name}, página inicial`}>
+      <span class="brand__mark" aria-hidden="true">LJ</span>
+      <span>{profile.shortName}</span>
+    </a>
+    <nav class="nav" aria-label="Principal">
+      <ul>
+        {
+          items.map((item) => (
+            <li>
+              <a href={url(item.href)} aria-current={isCurrent(item.href) ? 'page' : undefined}>
+                {item.label}
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </nav>
+  </div>
+</header>

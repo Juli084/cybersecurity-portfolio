@@ -1,0 +1,34 @@
+---
+import { profile } from '../data/profile';
+import { url } from '../lib/site';
+---
+
+<footer class="site-footer">
+  <div class="wrap grid grid--3">
+    <div>
+      <h2>{profile.name}</h2>
+      <p>
+        Portfólio de Segurança Cibernética baseado em evidências. Todos os laboratórios foram feitos em
+        ambiente acadêmico, controlado e autorizado.
+      </p>
+    </div>
+    <nav aria-label="Rodapé">
+      <h2>Neste site</h2>
+      <ul>
+        <li><a href={url('laboratorios/')}>Catálogo de laboratórios</a></li>
+        <li><a href={url('competencias/')}>Matriz de competências</a></li>
+        <li><a href={url('metodologia/')}>Como documento os laboratórios</a></li>
+        <li><a href={url('etica/')}>Escopo e ética</a></li>
+      </ul>
+    </nav>
+    <div>
+      <h2>Contato</h2>
+      <ul>
+        <li><a href={profile.linkedin} rel="me noopener">LinkedIn</a></li>
+        <li><a href={profile.github} rel="me noopener">GitHub</a></li>
+        <li><a href={`mailto:${profile.email}`}>{profile.email}</a></li>
+        <li><a href={url(profile.cvFile)}>Currículo em PDF</a></li>
+      </ul>
+    </div>
+  </div>
+</footer>

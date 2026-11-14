@@ -1,0 +1,105 @@
+---
+import Base from '../layouts/Base.astro';
+import { otherSkills } from '../data/profile';
+import { EVIDENCE_STRENGTH } from '../data/taxonomy';
+import { getLabs, getSkillMatrix, getStats, labUrl, url } from '../lib/site';
+
+const labs = await getLabs();
+const matrix = getSkillMatrix(labs);
+const stats = getStats(labs);
+const description = `Matriz de competências técnicas: ${matrix.rows.length} competências em redes, segurança de redes, monitoramento, sistemas, criptografia e investigação, cada uma ligada aos laboratórios que a comprovam.`;
+---
+
+<Base title="Competências técnicas" description={description}>
+  <div class="page-head">
+    <div class="wrap">
+      <p class="eyebrow">Mapa de evidências</p>
+      <h1>Competências técnicas</h1>
+      <p class="lead">
+        Cada competência abaixo aponta para os laboratórios em que foi praticada. Não uso notas nem percentuais: o
+        que aparece é o tipo de evidência que existe.
+      </p>
+      <nav aria-label="Domínios">
+        <ul class="tag-list">
+          {matrix.domains.map((d) => <li><a class="tag" href={`#dominio-${d.id}`}>{d.label}</a></li>)}
+        </ul>
+      </nav>
+    </div>
+  </div>
+
+  <div class="wrap section section--tight stack">
+    {
+      matrix.domains.map((domain) => (
+        <section aria-labelledby={`dominio-${domain.id}`}>
+          <h2 id={`dominio-${domain.id}`}>{domain.label}</h2>
+          <div class="card card--flat">
+            {domain.rows.map((row) => (
+              <div class="skill" id={row.id}>
+                <div>
+                  <h3>{row.label}</h3>
+                  <p class="skill__level">
+                    <span class={`badge badge--${row.best}`}>{EVIDENCE_STRENGTH[row.best].short}</span>
+                  </p>
+                  <p class="skill__level">{row.level}</p>
+                  <ul class="tag-list" aria-label="Ferramentas associadas">
+                    {row.tools.slice(0, 6).map((t) => <li class="tag">{t}</li>)}
+                  </ul>
+                </div>
+                <div>
+                  <p class="eyebrow" style="margin-bottom:0.35rem">Onde foi praticada</p>
+                  <ul class="skill__labs">
+                    {row.labs.map((lab) => (
+                      <li>
+                        <a href={labUrl(lab)}>{lab.data.title}</a>
+                        <span class="muted"> · {lab.data.id}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              </div>
+            ))}
+          </div>
+        </section>
+      ))
+    }
+
+    <section aria-labelledby="h-ferramentas">
+      <h2 id="h-ferramentas">Ferramentas e comandos praticados nos laboratórios</h2>
+      <ul class="tag-list">
+        {stats.tools.map((t) => <li><a class="tag" href={`${url('laboratorios/')}?tools=${encodeURIComponent(t)}`}>{t}</a></li>)}
+      </ul>
+      <h3 style="margin-top:1.5rem">Protocolos e tecnologias observados</h3>
+      <ul class="tag-list">
+        {stats.protocols.map((t) => <li><a class="tag" href={`${url('laboratorios/')}?protocols=${encodeURIComponent(t)}`}>{t}</a></li>)}
+      </ul>
+    </section>
+
+    <section aria-labelledby="h-outras">
+      <h2 id="h-outras">Competências de outras fontes</h2>
+      <p class="note">
+        Estas vêm da minha experiência profissional e de certificações. Não há laboratório neste portfólio que as
+        comprove, por isso ficam separadas da matriz.
+      </p>
+      <div class="grid grid--2" style="margin-top:1rem">
+        {
+          otherSkills.map((group) => (
+            <div class="card card--flat">
+              <h3>{group.group}</h3>
+              <p>{group.items.join(', ')}.</p>
+              <p class="muted" style="font-size:0.9rem; margin:0">Fonte: {group.source}</p>
+            </div>
+          ))
+        }
+      </div>
+    </section>
+
+    <section aria-labelledby="h-fora">
+      <h2 id="h-fora">O que não está aqui</h2>
+      <p class="prose">
+        Não tenho prática documentada em nuvem, SIEM, EDR, ferramentas forenses, testes de invasão nem escrita de
+        regras de IDS. Esses temas aparecem em alguns laboratórios como recomendação estudada, e é assim que os
+        apresento.
+      </p>
+    </section>
+  </div>
+</Base>

@@ -1,0 +1,22 @@
+---
+import Base from '../layouts/Base.astro';
+import { Content } from '../../docs/methodology.md';
+import { url } from '../lib/site';
+---
+
+<Base
+  title="Como documento os laboratórios"
+  description="Método de documentação dos laboratórios: fluxo de trabalho em dez passos, critérios de classificação da evidência e o que é autoria própria."
+>
+  <div class="wrap section section--tight">
+    <nav class="breadcrumb" aria-label="Você está em">
+      <ol>
+        <li><a href={url('')}>Início</a></li>
+        <li aria-current="page">Metodologia</li>
+      </ol>
+    </nav>
+    <div class="prose">
+      <Content />
+    </div>
+  </div>
+</Base>

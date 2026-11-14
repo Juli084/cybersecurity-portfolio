@@ -1,0 +1,127 @@
+---
+import Base from '../layouts/Base.astro';
+import { experience, profile } from '../data/profile';
+import { getLabs, getStats, labUrl, url } from '../lib/site';
+
+const labs = await getLabs();
+const stats = getStats(labs);
+const bySlug = (slug: string) => labs.find((l) => l.data.slug === slug);
+const phases = [
+  {
+    when: 'Primeiro semestre de 2025',
+    title: 'Fundamentos de rede',
+    text: 'Cabeamento, DHCP, NAT, documentação de endereçamento e os primeiros diagnósticos de falha.',
+    slugs: ['fundamentos-de-redes', 'troubleshooting-wifi', 'falhas-enderecamento-dhcp'],
+  },
+  {
+    when: 'Segundo semestre de 2025',
+    title: 'Tráfego, sistemas e reconhecimento',
+    text: 'Leitura de pacotes e de logs, linha de comando em Linux e Windows, varredura com Nmap, integridade de arquivos e triagem de indicadores.',
+    slugs: ['dns-wireshark', 'logs-linux', 'permissoes-linux', 'nmap-enumeracao-host', 'malware-hash'],
+  },
+  {
+    when: 'Primeiro semestre de 2026',
+    title: 'Controle de acesso, criptografia e detecção',
+    text: 'AAA com TACACS+ e RADIUS, a série de ACLs, OpenSSL, e as três fontes de dados de rede até chegar ao IDS.',
+    slugs: ['aaa-tacacs-radius', 'serie-acl', 'hashes-openssl', 'syslog-aaa-netflow', 'snort-tcpdump-iptables'],
+  },
+  {
+    when: 'Segundo semestre de 2026',
+    title: 'Investigação e conscientização',
+    text: 'Linha do tempo de um incidente a partir de artefatos e o projeto de conscientização contra golpes digitais.',
+    slugs: ['forense-nota-fiscal'],
+  },
+];
+---
+
+<Base
+  title="Sobre"
+  description={`${profile.name}: mais de 12 anos em tecnologia, entre suporte técnico, desenvolvimento web e operação de e-commerce, e formação técnica em Segurança Cibernética. ${profile.objective}`}
+  ogType="profile"
+>
+  <div class="page-head">
+    <div class="wrap">
+      <p class="eyebrow">Trajetória</p>
+      <h1>Sobre</h1>
+      <p class="lead">{profile.intro}</p>
+    </div>
+  </div>
+
+  <div class="wrap section section--tight stack">
+    <section class="prose" aria-labelledby="h-quem">
+      <h2 id="h-quem">De onde venho</h2>
+      <p>
+        Comecei em 2013 consertando computadores e resolvendo problemas de hardware e software para clientes. Com o
+        tempo o trabalho passou a incluir sites e aplicações web. Desde 2022 coordeno a operação de um e-commerce,
+        onde o dia a dia é estoque, pedidos e a consistência dos dados entre a loja e o sistema de gestão.
+      </p>
+      <p>
+        Para migrar para Segurança da Informação, fiz o Técnico em Segurança Cibernética no Senac Sorocaba e obtive
+        três certificações da Cisco Networking Academy, em cibersegurança, redes e gerenciamento de ameaças.
+      </p>
+      <h2>O que procuro</h2>
+      <p>
+        {profile.objective} Quero aplicar a experiência técnica e a capacidade analítica que já tenho na
+        identificação de riscos, na resolução de problemas e na continuidade das operações.
+      </p>
+    </section>
+
+    <section aria-labelledby="h-exp">
+      <h2 id="h-exp">Experiência profissional em tecnologia</h2>
+      <p class="note">
+        Esta é experiência em tecnologia, suporte e operação. Não é experiência profissional em cibersegurança. O que
+        pratiquei de segurança está nos <a href={url('laboratorios/')}>laboratórios</a>.
+      </p>
+      <div class="grid grid--2" style="margin-top:1rem">
+        {
+          experience.map((job) => (
+            <div class="card card--flat">
+              <h3>{job.role}</h3>
+              <p class="muted" style="font-size:0.92rem">{job.company} · {job.period}</p>
+              <ul>
+                {job.points.map((p) => <li>{p}</li>)}
+              </ul>
+              <p style="margin:0; font-size:0.94rem"><strong>O que levo para segurança:</strong> {job.transfers}</p>
+            </div>
+          ))
+        }
+      </div>
+    </section>
+
+    <section aria-labelledby="h-evolucao">
+      <h2 id="h-evolucao">Evolução durante o curso</h2>
+      <p class="muted">Ordem real das entregas, de março de 2025 a agosto de 2026.</p>
+      <ol class="timeline">
+        {
+          phases.map((phase) => (
+            <li>
+              <span>{phase.when}</span>
+              <strong>{phase.title}</strong>
+              <p style="margin:0.25rem 0 0.4rem">{phase.text}</p>
+              <ul class="tag-list">
+                {phase.slugs
+                  .map(bySlug)
+                  .filter((l) => l !== undefined)
+                  .map((lab) => (
+                    <li><a class="tag" href={labUrl(lab)}>{lab.data.id}</a></li>
+                  ))}
+              </ul>
+            </li>
+          ))
+        }
+      </ol>
+      <p>
+        No total, {stats.labCount} laboratórios documentados, além de dois <a href={url('projetos/')}>projetos em equipe</a>.
+      </p>
+    </section>
+
+    <section aria-labelledby="h-metodo">
+      <h2 id="h-metodo">Como trabalho</h2>
+      <p class="prose">
+        Documento o que fiz, o que observei e o que ficou faltando. O método está em
+        <a href={url('metodologia/')}>como documento os laboratórios</a>, e os limites do que pratiquei estão em
+        <a href={url('etica/')}>escopo e ética</a>.
+      </p>
+    </section>
+  </div>
+</Base>

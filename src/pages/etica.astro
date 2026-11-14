@@ -1,0 +1,22 @@
+---
+import Base from '../layouts/Base.astro';
+import { Content } from '../../docs/ethics.md';
+import { url } from '../lib/site';
+---
+
+<Base
+  title="Escopo e ética"
+  description="Em que condições os laboratórios foram feitos: ambiente acadêmico, controlado e autorizado, o que não é publicado e os limites do que o portfólio afirma."
+>
+  <div class="wrap section section--tight">
+    <nav class="breadcrumb" aria-label="Você está em">
+      <ol>
+        <li><a href={url('')}>Início</a></li>
+        <li aria-current="page">Escopo e ética</li>
+      </ol>
+    </nav>
+    <div class="prose">
+      <Content />
+    </div>
+  </div>
+</Base>

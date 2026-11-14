@@ -1,0 +1,262 @@
+---
+import { render } from 'astro:content';
+import Base from '../../layouts/Base.astro';
+import Evidence from '../../components/Evidence.astro';
+import { profile } from '../../data/profile';
+import {
+  CATEGORIES,
+  ENVIRONMENTS,
+  EVIDENCE_STRENGTH,
+  EVIDENCE_TYPES,
+  KINDS,
+  OS,
+  SKILLS,
+} from '../../data/taxonomy';
+import { formatPeriod, getLabs, labUrl, url, type Lab } from '../../lib/site';
+
+export async function getStaticPaths() {
+  const labs = await getLabs();
+  return labs.map((lab, i) => ({
+    params: { slug: lab.data.slug },
+    props: { lab, prev: labs[i - 1] ?? null, next: labs[i + 1] ?? null },
+  }));
+}
+
+interface Props {
+  lab: Lab;
+  prev: Lab | null;
+  next: Lab | null;
+}
+
+const { lab, prev, next } = Astro.props;
+const d = lab.data;
+const { Content } = await render(lab);
+const folder = lab.filePath?.replace(/\\/g, '/').replace(/\/lab\.md$/, '') ?? '';
+const repoUrl = `${profile.repo}/tree/main/${folder}`;
+const fw = d.frameworks;
+const hasFrameworks = fw.nice.length + fw.csf.length + fw.attack.length + fw.owasp.length > 0;
+const strength = EVIDENCE_STRENGTH[d.evidenceStrength];
+---
+
+<Base title={d.title} description={d.summary} ogType="article">
+  <div class="page-head">
+    <div class="wrap">
+      <nav class="breadcrumb" aria-label="Você está em">
+        <ol>
+          <li><a href={url('')}>Início</a></li>
+          <li><a href={url('laboratorios/')}>Laboratórios</a></li>
+          <li aria-current="page">{d.id}</li>
+        </ol>
+      </nav>
+      <p class="eyebrow">{KINDS[d.kind]} {d.id} · {CATEGORIES[d.category]} · {formatPeriod(d.date, d.dateEnd)}</p>
+      <h1>{d.title}</h1>
+      <p class="lead">{d.summary}</p>
+      <p>
+        <span class={`badge badge--${d.evidenceStrength}`}>{strength.label}</span>
+        <span class="muted" style="font-size:0.9rem; margin-left:0.5rem">{strength.description}</span>
+      </p>
+    </div>
+  </div>
+
+  <div class="wrap section section--tight stack">
+    <section aria-labelledby="h-contexto">
+      <h2 id="h-contexto">Contexto</h2>
+      <p class="prose">{d.context}</p>
+    </section>
+
+    <div class="grid grid--2">
+      <section class="card card--flat" aria-labelledby="h-objetivos">
+        <h2 id="h-objetivos">Objetivos</h2>
+        <ul>
+          {d.objectives.map((o) => <li>{o}</li>)}
+        </ul>
+      </section>
+      <section class="card card--flat" aria-labelledby="h-ambiente">
+        <h2 id="h-ambiente">Ambiente e ferramentas</h2>
+        <dl class="dl">
+          <dt>Ambiente</dt>
+          <dd>{d.environments.map((e) => ENVIRONMENTS[e]).join('; ')}</dd>
+          <dt>Sistema</dt>
+          <dd>{d.os.map((o) => OS[o]).join(', ')}</dd>
+          <dt>Ferramentas</dt>
+          <dd>
+            {d.tools.length > 0 ? (
+              <ul class="tag-list">
+                {d.tools.map((t) => <li class="tag">{t}</li>)}
+              </ul>
+            ) : (
+              'Nenhuma: atividade de análise sobre material fornecido'
+            )}
+          </dd>
+          {d.protocols.length > 0 && (
+            <>
+              <dt>Protocolos</dt>
+              <dd>
+                <ul class="tag-list">
+                  {d.protocols.map((t) => <li class="tag">{t}</li>)}
+                </ul>
+              </dd>
+            </>
+          )}
+          <dt>Tipo de evidência</dt>
+          <dd>{d.evidenceTypes.map((t) => EVIDENCE_TYPES[t]).join(' · ')}</dd>
+        </dl>
+      </section>
+    </div>
+
+    {d.scope && (
+      <p class="note">
+        <strong>Escopo.</strong> {d.scope}
+      </p>
+    )}
+
+    <section aria-labelledby="h-procedimento">
+      <h2 id="h-procedimento">O que eu fiz</h2>
+      <ol class="prose">
+        {d.procedure.map((p) => <li>{p}</li>)}
+      </ol>
+    </section>
+
+    <section aria-labelledby="h-evidencias">
+      <h2 id="h-evidencias">Evidências</h2>
+      {d.evidence.length > 0 ? (
+        <>
+          <Evidence items={d.evidence} />
+          {d.anonymized && (
+            <p class="muted" style="font-size:0.9rem; margin-top:0.75rem">
+              Dados que identificavam a rede ou pessoas foram substituídos ou recortados.
+            </p>
+          )}
+        </>
+      ) : (
+        <p class="note note--warn">
+          Este laboratório não tem captura de tela minha. O que comprova a execução são os valores e as saídas
+          que registrei na entrega, reproduzidos na análise abaixo
+          {d.anonymized ? ', com os endereços substituídos' : ''}.
+        </p>
+      )}
+    </section>
+
+    <section aria-labelledby="h-analise">
+      <h2 id="h-analise">Análise técnica</h2>
+      <div class="prose">
+        <Content />
+      </div>
+    </section>
+
+    <section aria-labelledby="h-resultado">
+      <h2 id="h-resultado">Resultado</h2>
+      <p class="prose">{d.result}</p>
+    </section>
+
+    <section aria-labelledby="h-competencias">
+      <h2 id="h-competencias">Competências demonstradas</h2>
+      <ul class="tag-list">
+        {
+          d.skills.map((s) => (
+            <li>
+              <a class="tag" href={`${url('competencias/')}#${s}`}>
+                {SKILLS[s].label}
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </section>
+
+    {hasFrameworks && (
+      <section aria-labelledby="h-frameworks">
+        <h2 id="h-frameworks">Frameworks relacionados</h2>
+        <p class="muted" style="font-size:0.92rem">
+          Relação com o que foi praticado aqui. Não indica exercício profissional da função.
+        </p>
+        <dl class="dl">
+          {fw.csf.length > 0 && (
+            <>
+              <dt>NIST CSF 2.0</dt>
+              <dd>{fw.csf.map((f) => `${f.id} (${f.name})`).join('; ')}</dd>
+            </>
+          )}
+          {fw.attack.length > 0 && (
+            <>
+              <dt>MITRE ATT&CK</dt>
+              <dd>
+                {fw.attack.map((f, i) => (
+                  <>
+                    {i > 0 && '; '}
+                    <a href={`https://attack.mitre.org/techniques/${f.id.replace('.', '/')}/`} rel="noopener">
+                      {f.id}
+                    </a>{' '}
+                    {f.name}
+                  </>
+                ))}
+              </dd>
+            </>
+          )}
+          {fw.owasp.length > 0 && (
+            <>
+              <dt>OWASP</dt>
+              <dd>{fw.owasp.map((f) => `${f.id} ${f.name}`).join('; ')}</dd>
+            </>
+          )}
+          {fw.nice.length > 0 && (
+            <>
+              <dt>NICE Framework</dt>
+              <dd>Tarefas relacionadas às funções: {fw.nice.join(', ')}</dd>
+            </>
+          )}
+        </dl>
+      </section>
+    )}
+
+    <section aria-labelledby="h-aprendizado">
+      <h2 id="h-aprendizado">O que aprendi</h2>
+      <p class="prose">{d.learning}</p>
+    </section>
+
+    {d.limitations.length > 0 && (
+      <section aria-labelledby="h-limitacoes">
+        <h2 id="h-limitacoes">Limitações</h2>
+        <ul class="prose">
+          {d.limitations.map((l) => <li>{l}</li>)}
+        </ul>
+      </section>
+    )}
+
+    {d.reproducibility.length > 0 && (
+      <section aria-labelledby="h-repro">
+        <h2 id="h-repro">Para reproduzir</h2>
+        <ul class="prose">
+          {d.reproducibility.map((r) => <li>{r}</li>)}
+        </ul>
+      </section>
+    )}
+
+    {d.references.length > 0 && (
+      <section aria-labelledby="h-referencias">
+        <h2 id="h-referencias">Referências</h2>
+        <ul>
+          {d.references.map((r) => (
+            <li>
+              <a href={r.url} rel="noopener">
+                {r.label}
+              </a>
+            </li>
+          ))}
+        </ul>
+      </section>
+    )}
+
+    <section aria-labelledby="h-repo">
+      <h2 id="h-repo">Repositório</h2>
+      <p>
+        <a class="btn btn--ghost" href={repoUrl} rel="noopener">Ver este laboratório no GitHub</a>
+      </p>
+    </section>
+
+    <nav class="btn-row" aria-label="Outros laboratórios" style="justify-content:space-between">
+      {prev ? <a href={labUrl(prev)}>← {prev.data.title}</a> : <span />}
+      {next ? <a href={labUrl(next)}>{next.data.title} →</a> : <span />}
+    </nav>
+  </div>
+</Base>

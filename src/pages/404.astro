@@ -1,0 +1,17 @@
+---
+import Base from '../layouts/Base.astro';
+import { url } from '../lib/site';
+---
+
+<Base title="Página não encontrada" description="A página procurada não existe neste portfólio. Veja o catálogo de laboratórios e a matriz de competências." noindex>
+  <div class="wrap section">
+    <p class="eyebrow">Erro 404</p>
+    <h1>Página não encontrada</h1>
+    <p class="lead">O endereço pode ter mudado. Estes são os caminhos principais:</p>
+    <div class="btn-row">
+      <a class="btn btn--primary" href={url('laboratorios/')}>Laboratórios</a>
+      <a class="btn btn--ghost" href={url('competencias/')}>Competências</a>
+      <a class="btn btn--ghost" href={url('')}>Início</a>
+    </div>
+  </div>
+</Base>

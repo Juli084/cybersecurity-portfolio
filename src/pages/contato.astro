@@ -1,0 +1,45 @@
+---
+import Base from '../layouts/Base.astro';
+import { profile } from '../data/profile';
+import { url } from '../lib/site';
+---
+
+<Base
+  title="Contato"
+  description={`Contato de ${profile.name}: e-mail, LinkedIn, GitHub e currículo em PDF. ${profile.objective}`}
+>
+  <div class="page-head">
+    <div class="wrap">
+      <p class="eyebrow">Fale comigo</p>
+      <h1>Contato</h1>
+      <p class="lead">{profile.objective} Estou em {profile.location}.</p>
+    </div>
+  </div>
+
+  <div class="wrap section section--tight">
+    <div class="grid grid--2">
+      <div class="card">
+        <h2>E-mail</h2>
+        <p><a href={`mailto:${profile.email}`}>{profile.email}</a></p>
+        <p class="muted" style="margin:0; font-size:0.93rem">O caminho mais direto para vagas e entrevistas.</p>
+      </div>
+      <div class="card">
+        <h2>LinkedIn</h2>
+        <p><a href={profile.linkedin} rel="me noopener">linkedin.com/in/julio-rodrigues84</a></p>
+        <p class="muted" style="margin:0; font-size:0.93rem">Histórico profissional e certificações.</p>
+      </div>
+      <div class="card">
+        <h2>GitHub</h2>
+        <p><a href={profile.github} rel="me noopener">github.com/Juli084</a></p>
+        <p class="muted" style="margin:0; font-size:0.93rem">
+          O <a href={profile.repo} rel="noopener">repositório deste portfólio</a> tem um README para cada laboratório.
+        </p>
+      </div>
+      <div class="card">
+        <h2>Currículo</h2>
+        <p><a class="btn btn--primary" href={url(profile.cvFile)}>Baixar currículo em PDF</a></p>
+        <p class="muted" style="margin:0; font-size:0.93rem">Uma página, atualizado.</p>
+      </div>
+    </div>
+  </div>
+</Base>

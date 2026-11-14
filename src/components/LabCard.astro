@@ -1,0 +1,50 @@
+---
+import { CATEGORIES, EVIDENCE_STRENGTH, SKILLS } from '../data/taxonomy';
+import { formatPeriod, labUrl, type Lab } from '../lib/site';
+
+interface Props {
+  lab: Lab;
+  filterable?: boolean;
+}
+
+const { lab, filterable = false } = Astro.props;
+const d = lab.data;
+const skillLabels = d.skills.map((s) => SKILLS[s].label);
+const search = [d.title, d.summary, ...d.tools, ...d.protocols, ...skillLabels, CATEGORIES[d.category], ...d.covers]
+  .join(' ')
+  .toLowerCase();
+const data = filterable
+  ? {
+      'data-lab': '',
+      'data-search': search,
+      'data-category': d.category,
+      'data-tools': d.tools.join('|'),
+      'data-protocols': d.protocols.join('|'),
+      'data-skills': d.skills.join('|'),
+      'data-os': d.os.join('|'),
+      'data-strength': d.evidenceStrength,
+    }
+  : {};
+---
+
+<article class="card lab-card" {...data}>
+  <div class="lab-card__meta">
+    <span class="lab-card__id">{d.id}</span>
+    <span>{CATEGORIES[d.category]}</span>
+    <span>{formatPeriod(d.date, d.dateEnd)}</span>
+  </div>
+  <h3><a href={labUrl(lab)}>{d.title}</a></h3>
+  <p>{d.summary}</p>
+  <ul class="tag-list" aria-label="Ferramentas">
+    {d.tools.slice(0, 5).map((t) => <li class="tag">{t}</li>)}
+  </ul>
+  <p class="muted" style="font-size:0.88rem">
+    <span class="sr-only">Competências: </span>{skillLabels.slice(0, 3).join(' · ')}
+  </p>
+  <div class="lab-card__foot">
+    <span class={`badge badge--${d.evidenceStrength}`} title={EVIDENCE_STRENGTH[d.evidenceStrength].description}>
+      {EVIDENCE_STRENGTH[d.evidenceStrength].short}
+    </span>
+    <a class="lab-card__more" href={labUrl(lab)} aria-label={`Ver laboratório: ${d.title}`}>Ver laboratório →</a>
+  </div>
+</article>
