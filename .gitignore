@@ -1,0 +1,16 @@
+node_modules/
+dist/
+.astro/
+.env
+.env.*
+*.log
+.DS_Store
+Thumbs.db
+# materiais brutos do curso nunca entram no repositório
+_raw/
+*.pka
+*.pksz
+# lista local de termos sensíveis usada pela auditoria de privacidade
+.privacy-terms.txt
+# configuração local do assistente
+.claude/
