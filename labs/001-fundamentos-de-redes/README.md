@@ -86,7 +86,7 @@ que diga para qual encaminhar.
 
 ## Resultado
 
-Quatro das cinco atividades foram concluídas. A 001 ficou em 50 de 80 pontos, com 10 de 16 itens corretos, e está registrada aqui como incompleta.
+As atividades 002, 003 e 007 foram concluídas com todos os itens corretos. A 004 é um relatório, sem pontuação. A 001 ficou em 50 de 80 pontos, com 10 de 16 itens corretos, e está registrada aqui como incompleta.
 
 ## O que aprendi
 

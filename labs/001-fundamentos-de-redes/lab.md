@@ -53,8 +53,9 @@ evidence:
     alt: Prompt de comando com dois pings bem-sucedidos para outros PCs da rede local
     caption: "007: conectividade entre os PCs atrás do roteador sem fio antes de observar o NAT."
 result: >-
-  Quatro das cinco atividades foram concluídas. A 001 ficou em 50 de 80 pontos, com 10 de 16 itens
-  corretos, e está registrada aqui como incompleta.
+  As atividades 002, 003 e 007 foram concluídas com todos os itens corretos. A 004 é um relatório,
+  sem pontuação. A 001 ficou em 50 de 80 pontos, com 10 de 16 itens corretos, e está registrada
+  aqui como incompleta.
 learning: >-
   O cabo errado derruba o enlace antes de qualquer configuração importar, e o ipconfig e o ping
   resolvem a maior parte das dúvidas iniciais. Na 007, ver o endereço de origem mudar no cabeçalho

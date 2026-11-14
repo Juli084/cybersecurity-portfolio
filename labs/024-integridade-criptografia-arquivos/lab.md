@@ -83,9 +83,8 @@ O arquivo viajou cifrado com AES-256. Se alguém capturasse a transferência, n�
 Leria, porém, o usuário e a senha da conta, que o FTP envia em texto claro, e com isso poderia
 baixar o próprio arquivo cifrado e qualquer outro.
 
-A proteção do conteúdo depende então de a chave de decifragem não circular pelo mesmo canal. No
-cenário, a chave estava guardada na estação de destino. Em produção, a troca seria por SFTP ou
-FTPS, e a chave por outro meio.
+A proteção do conteúdo depende então de a chave de decifragem não circular pelo mesmo canal. Em
+produção, a transferência seria por SFTP ou FTPS, e a chave iria por outro meio.
 
 ## O desafio com OpenSSL
 
