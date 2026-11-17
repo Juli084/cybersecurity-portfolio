@@ -56,7 +56,7 @@ estiver sem campo obrigatório ou citar algo fora da taxonomia.
 
 ## Rodando localmente
 
-Requer Node 22.12 ou superior.
+Requer Node 22.23.4 ou superior (exigência do Astro 7).
 
 ```bash
 npm install
