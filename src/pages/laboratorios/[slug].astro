@@ -182,13 +182,7 @@ const strength = EVIDENCE_STRENGTH[d.evidenceStrength];
               <dt>MITRE ATT&CK</dt>
               <dd>
                 {fw.attack.map((f, i) => (
-                  <>
-                    {i > 0 && '; '}
-                    <a href={`https://attack.mitre.org/techniques/${f.id.replace('.', '/')}/`} rel="noopener">
-                      {f.id}
-                    </a>{' '}
-                    {f.name}
-                  </>
+                  <>{i > 0 && '; '}<a href={`https://attack.mitre.org/techniques/${f.id.replace('.', '/')}/`} rel="noopener">{f.id}</a> {f.name}</>
                 ))}
               </dd>
             </>
